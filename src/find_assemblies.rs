@@ -1,3 +1,18 @@
+/* Copyright 2022-2023 Arne Köhn <arne@chark.eu>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 use bitvec::prelude::*;
 use std::cmp;
 
@@ -10,6 +25,7 @@ pub struct Position {
     pub flipped: bool,
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Coord {
     pub x: u16,
     pub y: u16,
@@ -138,7 +154,16 @@ pub fn get_matrices_for_piece(piece: &Piece, target: &PuzzArray) -> Vec<(Positio
         let arr = piece_to_matrix(&piece, &p);
         let non_overlap: PuzzArray = (*target & arr) ^ arr;
         if non_overlap.not_any() {
-            res.push((p, arr));
+	    let mut already_added = false;
+	    for prev_res in &res {
+		if arr == prev_res.1 {
+		    already_added = true;
+		    break;
+		}
+	    }
+	    if !already_added {
+		res.push((p, arr));
+	    }
         }
     }
     return res;
